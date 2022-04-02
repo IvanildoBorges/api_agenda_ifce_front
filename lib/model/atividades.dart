@@ -2,7 +2,7 @@ class Atividade {
   final int id;
   final String titulo;
   final String descricao;
-  final String dataDePostagem;
+  final DateTime dataDePostagem;
 
   const Atividade({
     required this.id,
@@ -16,7 +16,7 @@ class Atividade {
       id: json['id'],
       titulo: json['titulo'],
       descricao: json['descricao'],
-      dataDePostagem: json['datadaatividade'],
+      dataDePostagem: DateTime.parse(json['datadaatividade']).toLocal(),
     );
   }
 }

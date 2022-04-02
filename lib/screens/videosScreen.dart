@@ -72,10 +72,9 @@ class FilmesPageState extends State<FilmesPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 18, bottom: 18),
+                        padding: const EdgeInsets.only(left: 20, right: 20, top: 18, bottom: 18),
                         child: Container(
                           height: 45,
-                          width: 320,
                           decoration: BoxDecoration(
                             border: Border.all(
                                 width: 1.0,
@@ -114,10 +113,9 @@ class FilmesPageState extends State<FilmesPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 18),
+                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 18),
                         child: Container(
                           height: 45,
-                          width: 320,
                           decoration: BoxDecoration(
                             border: Border.all(
                                 width: 1.0,

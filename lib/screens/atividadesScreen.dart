@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:agenda_ai_ifce/screens/home.dart';
 import 'package:intl/intl.dart';
 import 'package:agenda_ai_ifce/data/apiAgendaAi.dart';
 import 'package:agenda_ai_ifce/model/atividades.dart';
@@ -29,20 +30,111 @@ class AtividadesPageState extends State<AtividadesPage> {
     super.initState();
   }
 
-  String dataConvertida(String aux) {
-    String aux2 = aux.substring(0, 10);
+  String dataConvertida(DateTime dataDdoida) {
+    String aux = dataDdoida.toString();
+    String data = aux.substring(0, 10);
+    String hora_minuto_segundo = aux.substring(11);
     String brazilianDate = '01/01/2000';
-    List<String> validadeSplit = aux2.split('-');
+    List<String> dataSplit = data.split('-');
+    List<String> horarioSplit = hora_minuto_segundo.split(":");
 
-    if(validadeSplit.length > 1) {
-      String year = validadeSplit[0].toString();
-      String month = validadeSplit[1].toString();
-      String day = validadeSplit[2].toString();
+    if(dataSplit.length > 1) {
+      String year = dataSplit[0].toString();
+      String month = dataSplit[1].toString();
+      String day = dataSplit[2].toString();
 
-      brazilianDate = '$day/$month/$year';
+      if (horarioSplit.length > 1) {
+        String hora = horarioSplit[0].toString();
+        String min = horarioSplit[1].toString();
+        //String seg = horarioSplit[2].toString();
+
+        brazilianDate = '$day/$month/$year $hora:$min';
+      }
     }
 
     return brazilianDate;
+  }
+
+  void deleteAtividade(Atividade atividade, int indice, BuildContext context,) {
+    if (atividade == lista.elementAt(indice)) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          //Retorna um objeto do tipo Dialog
+          return AlertDialog(
+            title: Text("Deseja mesmo excluir?",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            content: Text("Aviso: Está opção é irreversível!"),
+            actions: <Widget>[
+              // define os botões na base do dialogo
+              TextButton(
+                child: Text("OK",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all<Size>(
+                      Size(30.0, 30.0)),
+                ),
+                onPressed: () {
+                  setState(() {
+                    lista.remove(atividade);
+                  });
+                  AgendaAiApi.apagarAtividade(atividade.id);
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text("Cancelar",
+                  style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all<Size>(
+                      Size(30.0, 30.0)),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+    else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Já foi excluído!",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text("OK",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all<Size> (Size(30.0, 30.0)),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -66,7 +158,7 @@ class AtividadesPageState extends State<AtividadesPage> {
             return Padding(
               padding: const EdgeInsets.all(18),
               child: Container(
-                height: 340,
+                height: 370,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Color(0xff009706),
@@ -78,19 +170,34 @@ class AtividadesPageState extends State<AtividadesPage> {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
-                      child: Text("ATIVIDADE",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xffC7FCC9),
-                          fontSize: 18,
-                        ),
-                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 50.0),
+                            child: Text("ATIVIDADE",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffC7FCC9),
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete),
+                            tooltip: 'Excluir',
+                            color: Colors.white,
+                            onPressed: (){
+                              deleteAtividade(lista[index], index, context);
+                            },
+                          )
+                        ],
+                      )
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 18, bottom: 18),
+                      padding: const EdgeInsets.only(left: 20, right: 20, top: 18, bottom: 18),
                       child: Container(
                         height: 45,
-                        width: 320,
                         decoration: BoxDecoration(
                           border: Border.all(
                               width: 1.0,
@@ -129,10 +236,10 @@ class AtividadesPageState extends State<AtividadesPage> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 18),
+                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 18),
                       child: Container(
                         height: 136,
-                        width: 320,
+                        width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(
                               width: 1.0,
@@ -146,7 +253,7 @@ class AtividadesPageState extends State<AtividadesPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(left: 18, top: 10),
+                              padding: const EdgeInsets.only(left: 18, right: 18, top: 10),
                               child: Text("Descrição:",
                                 style: TextStyle(
                                     color: Color(0xFFC7FCC9),
@@ -156,7 +263,7 @@ class AtividadesPageState extends State<AtividadesPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(left: 18, top: 10),
+                              padding: const EdgeInsets.only(left: 18, right: 18, top: 10),
                               child: Text(lista[index].descricao,
                                 style: TextStyle(
                                     color: Color(0xFFC7FCC9),
@@ -170,10 +277,9 @@ class AtividadesPageState extends State<AtividadesPage> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 18),
+                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 18),
                       child: Container(
                         height: 45,
-                        width: 320,
                         decoration: BoxDecoration(
                           border: Border.all(
                               width: 1.0,
